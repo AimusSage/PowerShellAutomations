@@ -6,10 +6,10 @@
 [CmdletBinding(SupportsShouldProcess=$True)]
 Param(
     [Parameter(Mandatory=$True)]
-    [string]$imageFolderPath 
+    [string]$ImageFolderPath 
 )
 try {
-    $dir = get-item "$imageFolderPath"
+    $dir = get-item "$ImageFolderPath"
     $supportedFileTypes = @(".jpg",".jpeg",".png",".tiff",".tif")    
     $PictureSet = Get-ChildItem -Path $dir | Where-Object {$_.Extension -in $supportedFileTypes}
 
