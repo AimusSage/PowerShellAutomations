@@ -62,7 +62,7 @@ function update-CurrentWallpaper {
     RUNDLL32.EXE USER32.DLL,UpdatePerUserSystemParameters 
     RUNDLL32.EXE USER32.DLL,UpdatePerUserSystemParameters 
     RUNDLL32.EXE USER32.DLL,UpdatePerUserSystemParameters 
-
+    
     $newWallpaper = get-item $global:currentWallpaperLocation #retreive new wallpaper info for comparison
     
     #check if update was succesful, if not, try again
@@ -74,17 +74,11 @@ function update-CurrentWallpaper {
         Write-host "Oops, Updating didn't work quite right, let's try again..."
         Update-CurrentWallpaper -pictureSet $pictureSet -CurrentWallpaperSize $CurrentWallpaperSize
     }
+
 }
 
 # script execution
 try {
-    if($EnableLogging) {
-        $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
-        $timestamp = $(get-date -format yyyy-MM-dd-HH-mm);
-        $global:fileName = "$($MyInvocation.MyCommand | Select-Object -ExpandProperty Name)".Replace(".ps1", "")
-        $logFile = "$global:scriptPath\Logs\$($timestamp)_$($fileName).log"
-        start-transcript -path $logFile
-    }
 
     $dir = get-item "$ImageFolderPath"
     $supportedFileTypes = @(".jpg",".jpeg",".png",".tiff",".tif")    
@@ -96,6 +90,10 @@ try {
     $imageFullPath = select-wallpaper -PictureSet $PictureSet -CurrentWallpaperSize $currentWallpaperSize         
     
     update-CurrentWallpaper -NewImageFullPath $imageFullPath -CurrentWallpaperSize $currentWallpaperSize
+    
+    # try another method updating registry to refer to the other path (it might work)
+    Set-ItemProperty -Path 'HKCU:\Control Panel\Desktop\' -Name wallpaper -Value $imageFullPath -Force
+    rundll32.exe user32.dll, UpdatePerUserSystemParameters, 1, $True
 
     Write-Output "It looks like you got a shiny new wallpaper"
 }
